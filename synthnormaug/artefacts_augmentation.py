@@ -8,7 +8,7 @@ from torchio.transforms import (
 
 import numpy as np
 import torch
-from twaibrain.braintorch.augmentation.perlin_noise import perlin_improved_noise_gpu
+from synthnormaug.perlin_noise import perlin_improved_noise_gpu
 
 def apply_bias_field(I, B, mask=None):
     """
@@ -56,11 +56,12 @@ class PerlinBiasField:
         self.resample = resample
         self.resample_factor = resample_factor
 
-    def __call__(self, img):
+    def __call__(self, img, mask=None):
         min_value = np.random.uniform(low=self.min_range[0], high=self.min_range[1])
         max_value = np.random.uniform(low=self.max_range[0], high=self.max_range[1])
         res = self.base_res * np.random.choice(self.res_scales)
-        mask = None if not self.mask_at_0 else img != 0
+        if mask is None or self.mask_at_0:
+            mask = img != 0
         
         B = perlin_improved_noise_gpu(self.shape, res, self.device)
     
