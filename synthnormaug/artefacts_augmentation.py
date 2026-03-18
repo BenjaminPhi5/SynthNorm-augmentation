@@ -44,6 +44,71 @@ class PerlinBiasField:
 
         note: mask_at_0 is used here only for visualization processes, during training mask multiplication is done later in the augmentation pipeline, see ArtefactsAugmentation class
         """
+
+        """
+        Stochastic Perlin noise-based bias field augmentation for MRI.
+    
+        This class generates smooth multiplicative bias fields using improved
+        Perlin noise and applies them to input images to simulate scanner-related
+        intensity inhomogeneities and low-frequency artefacts.
+    
+        The generated bias fields are:
+            - spatially smooth (controlled via Perlin resolution)
+            - positive-valued (via exponential mapping)
+            - randomly scaled to a configurable intensity range
+    
+        Parameters
+        ----------
+        shape : list of int
+            Shape of the generated Perlin noise field (before optional resampling).
+            Typically lower resolution than the input image for efficiency. 
+            Shape should be 1/resample_factor * MRI_size (where MRI_size is the size of the MRI image torch tensor).
+    
+        base_res : list of int, optional
+            The distance in voxels between grid coordinates used in the perlin noise algorithm.
+    
+        res_scales : list of int, optional
+            Discrete scaling factors applied to `base_res`. A value is sampled
+            uniformly each time to vary the spatial frequency of the bias field.
+    
+        device : str, optional
+            Device used for computation ('cpu' or 'cuda'). 
+            'cuda' currently doesn't work during model training, but when resample_factor is > 1
+            computing the bias field on the cpu is fast.
+    
+        min_range : tuple of float, optional
+            Range (l_alpha, l_beta) from which the minimum bias field value `a` (see documentation)
+            is sampled uniformly.
+    
+        max_range : tuple of float, optional
+            Range (u_alpha, u_beta) from which the maximum bias field value `b` (see documentation)
+            is sampled uniformly.
+    
+        return_field : bool, optional
+            If True, returns both the augmented image and the generated bias field.
+    
+        mask_at_0 : bool, optional
+            If True, generates a mask from zero-valued voxels in the input image.
+            Intended primarily for visualization/debugging.
+    
+        resample : bool, optional
+            Whether to upsample the generated bias field to match the input image
+            resolution.
+    
+        resample_factor : int, optional
+            Upsampling factor applied when `resample=True`. If shape is half the size of
+            the target MRI image in each dimension, then this should be set to 2.
+    
+        Notes
+        -----
+        Bias field generation follows these steps:
+    
+        1. Generate Perlin noise field B_init at low resolution
+        2. Normalize B_init to [0, 1]
+        3. Map to logarithmic range [log(a), log(b)]
+        4. Exponentiate to obtain multiplicative field B ∈ [a, b]
+        5. Optionally upsample to match image resolution
+        """
         
         self.shape = shape
         self.base_res = np.array(base_res)

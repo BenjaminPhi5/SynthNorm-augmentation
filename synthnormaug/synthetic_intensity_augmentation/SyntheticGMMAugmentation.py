@@ -146,6 +146,73 @@ class SyntheticGMMAugmentation:
                  gmm_weight_path='.',
                 ):
 
+        """
+        SynthNorm Gaussian Mixture Model (GMM)-based intensity augmentation for MRI.
+    
+        This class implements the core SynthNorm augmentation strategy, where
+        region-wise intensity statistics (mean and standard deviation) are
+        resampled from a pretrained Gaussian Mixture Model (GMM) and applied
+        to an input MRI volume using anatomical volumes provided from SynthSeg.
+    
+        The augmentation preserves intra-region texture while modifying global
+        tissue intensity characteristics to simulate variations across scanners and
+        acquisition protocols.
+    
+        Parameters
+        ----------
+        keys : list of str, optional
+            Image keys in the input dictionary to which augmentation will be applied
+            (e.g. ['FLAIR', 'T1w']) or just ['FLAIR'].
+    
+        mean_z_temperature_cap : float, optional
+            Upper bound on z-score scaling applied to sampled means from the GMM.
+            Controls how extreme the sampled intensity shifts can be.
+    
+        std_z_temperature_cap : float, optional
+            Upper bound on z-score scaling applied to sampled standard deviations.
+    
+        min_std : float, optional
+            Minimum allowable standard deviation for any region. Prevents erasure
+            of tissue texture (i.e. std = 0).
+    
+        std_weighting : float, optional
+            Interpolation weight between original and sampled standard deviation
+            for non-CSF tissues. Helps preserve pathological structures (e.g. WMH).
+    
+        mean_only : bool, optional
+            If True, only region means are modified while standard deviations are
+            kept unchanged.
+    
+        csf_xscale : float, optional
+            Scaling factor used in sigmoid-based interpolation for CSF regions.
+            Controls how aggressively sampled parameters are blended with original
+            statistics near tissue boundaries.
+    
+        csf_xshift : float, optional
+            Shift parameter for sigmoid interpolation in CSF regions.
+    
+        wmh_mask : str or None, optional
+            WMH (white matter hyperintensity) mask name in the input dictionary.
+            If provided, WMH voxels are reassigned to white matter
+            prior to computing region statistics.
+    
+        drop_synthseg : bool, optional
+            If True, removes the 'synthseg' segmentation from the output dictionary
+            after augmentation.
+    
+        apply_csf_correction : bool, optional
+            Whether to apply voxel-wise interpolation for CSF and ventricular regions
+            to reduce boundary artefacts.
+    
+        gmm_weight_path : str, optional
+            Path to the directory (folder path) containing pretrained GMM parameter files (.npy).
+    
+        Notes
+        -----
+        - Requires a SynthSeg-style segmentation map under key 'synthseg' when calling the function.
+        - Augmentation is applied independently per modality if both FLAIR and T1w are provided..
+        """
+
         self.keys = keys
         self.drop_synthseg = drop_synthseg
 

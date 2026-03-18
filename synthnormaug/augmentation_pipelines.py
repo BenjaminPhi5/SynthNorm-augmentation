@@ -685,7 +685,58 @@ def format_transform(data):
     return (cat([data['FLAIR'], data['brainmask']], dim=0), data['label'])
 
 
-def get_augmentation_pipeline(image_keys=['FLAIR'], label_keys=['label', 'brainmask'], out_spatial_dims=(80, 192, 160), synthetic_realistic=True, axial_rot=False, global_minmax=False, global_zscore=False, add_synthetic=True, gmm_weight_path="."):
+def get_augmentation_pipeline(image_keys=['FLAIR'], label_keys=['label', 'brainmask'], out_spatial_dims=(80, 192, 160), synthetic_realistic=False, axial_rot=False, global_minmax=False, global_zscore=False, add_synthetic=True, gmm_weight_path="."):
+    """
+        Construct the full training augmentation pipeline for brain MRI.
+        
+        This function builds a MONAI `Compose` transform that combines:
+            1. Synthetic intensity augmentation (SynthNorm)
+            2. Geometric augmentations (affine, flipping)
+            3. Intensity augmentations (noise, blur, gamma)
+            4. MRI-specific artefact simulation (including Perlin noise bias field)
+            5. Normalization and formatting
+        
+        Parameters
+        ----------
+        image_keys : list of str, optional
+            Keys corresponding to input MRI modalities (e.g. ['FLAIR'], ['T1w']).
+        
+        label_keys : list of str, optional
+            Keys corresponding to label tensors (e.g. WMH segmentation labels,
+            brain masks). These are transformed alongside images using
+            nearest-neighbour interpolation where appropriate.
+        
+        out_spatial_dims : tuple of int, optional
+            Target spatial size (D, H, W) after cropping/padding.
+        
+        synthetic_realistic : bool, optional
+            Controls the range of GMM sampling in SynthNorm:
+                - True: moderate variation (realistic scanner variability, less useful for generalization)
+                - False: extreme variation (produces less realistic looking images, but yields improved robustness)
+        
+        axial_rot : bool, optional
+            If True, restricts rotations to the axial plane only 
+        
+        global_minmax : bool, optional
+            If True, applies global min-max normalization after augmentation.
+        
+        global_zscore : bool, optional
+            If True, applies global z-score normalization using brain mask.
+        
+        add_synthetic : bool, optional
+            If False, disables SynthNorm augmentation.
+        
+        gmm_weight_path : str, optional
+            Path to pretrained GMM weights used in SynthNorm.
+        
+        Returns
+        -------
+        monai.transforms.Compose
+            A composed transformation pipeline that maps input dictionaries to:
+                (input_tensor, label_tensor)
+    """
+
+    
     combined_keys = image_keys + label_keys
     resizer = MonaiCropAndPadToShape3d_V2(out_spatial_dims, keys=combined_keys)
     dims = 3
