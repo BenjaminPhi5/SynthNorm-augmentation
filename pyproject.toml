@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=64", "setuptools-scm>=8"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wmhparc"
+version = "1.0.0"
+description = "WMHParc — tools for WMH bullseye parcellation"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+authors = [
+  { name = "Ben Philps", email = "bphilps@ed.ac.uk" },
+]
+
+dependencies = [
+  "monai==1.4.0",
+  "numpy==1.26.4",
+  "pandas==2.2.3",
+  "scipy==1.14.1",
+  "torch==2.5.1",
+  "torchvision==0.20.1",
+  "scipy==1.14.1",
+  "torchio==0.20.6",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["synthnormaug*"]

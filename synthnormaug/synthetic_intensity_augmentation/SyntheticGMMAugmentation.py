@@ -1,7 +1,7 @@
 from typing import Dict
-import twaibrain
+import synthnormaug
 import numpy as np
-from twaibrain.braindataconfig.utils import _twaibrain_path
+import importlib.resources as pkg_resources
 import os
 import torch
 
@@ -11,12 +11,15 @@ WEIGHTS_NAMES = {
      "T2w":"t2_gmm_params_multi.npz",
 }
 
+def _synthnormaug_path():
+    return pkg_resources.files(synthnormaug).__dict__['_paths'][0].__str__()
+
 def load_gm_data(imgtype='FLAIR'):
     if imgtype not in WEIGHTS_NAMES:
         raise ValueError(f"no gmm weight config file for imgtype: {imgtype}, must be one of {WEIGHTS_NAMES.keys()}")
     
     weights_path = os.path.join(
-        _twaibrain_path(),
+        _synthnormaug_path(),
         "braintorch/augmentation/synthetic_intensity_augmentation/gmm_params",
         WEIGHTS_NAMES[imgtype]
     )
