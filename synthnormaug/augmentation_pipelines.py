@@ -685,7 +685,7 @@ def format_transform(data):
     return (cat([data['FLAIR'], data['brainmask']], dim=0), data['label'])
 
 
-def aggressive_augmentations(image_keys=['FLAIR'], label_keys=['label', 'brainmask'], out_spatial_dims=(80, 192, 160), synthetic_realistic=True, axial_rot=False, bias_field='perlin', global_minmax=False, global_zscore=False, add_synthetic=True, gmm_weight_path="."):
+def get_augmentation_pipeline(image_keys=['FLAIR'], label_keys=['label', 'brainmask'], out_spatial_dims=(80, 192, 160), synthetic_realistic=True, axial_rot=False, global_minmax=False, global_zscore=False, add_synthetic=True, gmm_weight_path="."):
     combined_keys = image_keys + label_keys
     resizer = MonaiCropAndPadToShape3d_V2(out_spatial_dims, keys=combined_keys)
     dims = 3
@@ -711,7 +711,7 @@ def aggressive_augmentations(image_keys=['FLAIR'], label_keys=['label', 'brainma
         AffineAugment_V2(p=0.4, spatial_size=out_spatial_dims, dims=dims, axial_only=axial_rot, allow_translate=True, allow_shear=False, keys=combined_keys, mode=['bilinear' for _ in range(len(image_keys))] + ['nearest' for _ in range(len(label_keys))]),
         GaussianNoiseAugment(p=0.15, dims=dims, keys=image_keys),
         GaussianBlurAugment_V2(p=0.15, modality_p=0.5, dims=dims, keys=image_keys),
-        ArtefactsAugmentation(bias_field='perlin'),
+        ArtefactsAugmentation(shape=out_spatial_dims),
         GammaAugmentation(p=0.15, allow_invert=True, dims=dims, keys=image_keys),
         MirrorAugment(p=0.5, dims=dims, keys=combined_keys)
     ] + ([GlobalMinMax(image_keys)] if global_minmax else []) + ([GlobalZscore(image_keys)] if global_zscore else []) + [

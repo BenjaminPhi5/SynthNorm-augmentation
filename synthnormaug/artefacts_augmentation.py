@@ -109,10 +109,11 @@ class PerlinBiasField:
 
 
 class ArtefactsAugmentation:
-    def __init__(self, keys=['FLAIR'], p_bias_field=0.5, p_downsample=0.1, p_motion=0.05, p_ghosting=0.05, p_spike=0.05, modality_p=1.0, bias_field='perlin'):
+    def __init__(self, keys=['FLAIR'], p_bias_field=0.5, p_downsample=0.1, p_motion=0.05, p_ghosting=0.05, p_spike=0.05, modality_p=1.0, shape=(80, 192, 160)):
         self.keys = keys
         self.modality_p = modality_p
-        bias_field_aug = PerlinBiasField() if bias_field=='perlin' else SynthsegBiasField()
+        shape = np.array(shape)
+        bias_field_aug = PerlinBiasField(shape//2, shape//4, resample_factor=2)
         self.transforms = [
             # [p_bias_field, RandomBiasField(coefficients=0.75, order=2)], #  yes happy with this
             [p_bias_field, bias_field_aug],

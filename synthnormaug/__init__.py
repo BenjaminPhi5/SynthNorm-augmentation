@@ -1,3 +1,3 @@
 from .synthetic_intensity_augmentation import SyntheticGMMAugmentation
 from .artefacts_augmentation import PerlinBiasField, ArtefactsAugmentation
-from .augmentation_pipelines import aggressive_augmentations
+from .augmentation_pipelines import get_augmentation_pipeline, get_val_transforms
