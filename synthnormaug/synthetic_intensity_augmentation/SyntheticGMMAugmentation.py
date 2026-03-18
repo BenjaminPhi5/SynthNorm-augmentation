@@ -11,16 +11,12 @@ WEIGHTS_NAMES = {
      "T2w":"t2_gmm_params_multi.npz",
 }
 
-def _synthnormaug_path():
-    return pkg_resources.files(synthnormaug).__dict__['_paths'][0].__str__()
-
-def load_gm_data(imgtype='FLAIR'):
+def load_gm_data(imgtype='FLAIR', gmm_weight_path='.'):
     if imgtype not in WEIGHTS_NAMES:
         raise ValueError(f"no gmm weight config file for imgtype: {imgtype}, must be one of {WEIGHTS_NAMES.keys()}")
     
     weights_path = os.path.join(
-        _synthnormaug_path(),
-        "braintorch/augmentation/synthetic_intensity_augmentation/gmm_params",
+        gmm_weight_path,
         WEIGHTS_NAMES[imgtype]
     )
     return np.load(weights_path)
@@ -147,6 +143,7 @@ class SyntheticGMMAugmentation:
                  wmh_mask=None,
                  drop_synthseg=True,
                  apply_csf_correction=True,
+                 gmm_weight_path='.',
                 ):
 
         self.keys = keys
@@ -154,7 +151,7 @@ class SyntheticGMMAugmentation:
 
         gm_transformers = {}
         for key in keys:
-            gm_data = load_gm_data(key)
+            gm_data = load_gm_data(key, gmm_weight_path=gmm_weight_path)
             gm_transformers[key] = GaussianMixtureRenormalizer(synthseg_keys, gm_data, mean_z_temperature_cap=std_z_temperature_cap, std_z_temperature_cap=std_z_temperature_cap, min_std=min_std, std_weighting=std_weighting, mean_only=mean_only, csf_xscale=csf_xscale, csf_xshift=csf_xshift, apply_csf_correction=apply_csf_correction)
 
         self.gm_transformers = gm_transformers

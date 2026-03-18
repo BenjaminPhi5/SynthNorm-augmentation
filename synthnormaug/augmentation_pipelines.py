@@ -685,15 +685,20 @@ def format_transform(data):
     return (cat([data['FLAIR'], data['brainmask']], dim=0), data['label'])
 
 
-def aggressive_augmentations(image_keys=['FLAIR'], label_keys=['label', 'brainmask'], out_spatial_dims=(80, 192, 160), synthetic_realistic=True, axial_rot=False, bias_field='perlin', global_minmax=False, global_zscore=False, add_synthetic=True):
+def aggressive_augmentations(image_keys=['FLAIR'], label_keys=['label', 'brainmask'], out_spatial_dims=(80, 192, 160), synthetic_realistic=True, axial_rot=False, bias_field='perlin', global_minmax=False, global_zscore=False, add_synthetic=True, gmm_weight_path="."):
     combined_keys = image_keys + label_keys
     resizer = MonaiCropAndPadToShape3d_V2(out_spatial_dims, keys=combined_keys)
     dims = 3
 
+    # setup synthetic augmentation
     if synthetic_realistic:
-        synthetic_aug = SyntheticGMMAugmentation(mean_z_temperature_cap=3.5, std_z_temperature_cap=1.5, std_weighting=0.5, keys=image_keys, wmh_mask='label')
+        mean_z_temperature_cap=3.5
+        std_z_temperature_cap=1.5
     else:
-        synthetic_aug = SyntheticGMMAugmentation(mean_z_temperature_cap=10, std_z_temperature_cap=10, std_weighting=0.5, keys=image_keys, wmh_mask='label')
+        mean_z_temperature_cap=10
+        std_z_temperature_cap=10
+
+    synthetic_aug = SyntheticGMMAugmentation(mean_z_temperature_cap=3.5, std_z_temperature_cap=1.5, std_weighting=0.5, keys=image_keys, wmh_mask='label', gmm_weight_path=gmm_weight_path)
 
     if add_synthetic:
         synthetic_aug = [synthetic_aug]
