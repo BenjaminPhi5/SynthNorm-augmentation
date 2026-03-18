@@ -7,6 +7,8 @@
 # test notebook
 synthnormaug/testing.ipynb
 synthnormaug/synthetic_intensity_augmentation/testing*
+example*
+
 
 # authentication information
 authentication.txt

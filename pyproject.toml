@@ -3,9 +3,9 @@ requires = ["setuptools>=64", "setuptools-scm>=8"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "wmhparc"
+name = "synthnormaug"
 version = "1.0.0"
-description = "WMHParc — tools for WMH bullseye parcellation"
+description = "SynthNorm - tool for synthetic normalization and bias field augmentation"
 readme = "README.md"
 requires-python = ">=3.9"
 license = { text = "MIT" }
@@ -16,13 +16,16 @@ authors = [
 
 dependencies = [
   "monai==1.4.0",
+  "matplotlib==3.10.0",
+  "matplotlib-inline==0.1.7",
   "numpy==1.26.4",
   "pandas==2.2.3",
   "scipy==1.14.1",
   "torch==2.5.1",
   "torchvision==0.20.1",
-  "scipy==1.14.1",
+  "SimpleITK==2.4.0",
   "torchio==0.20.6",
+  
 ]
 
 [tool.setuptools.packages.find]
