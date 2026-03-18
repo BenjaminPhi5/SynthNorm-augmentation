@@ -33,19 +33,6 @@ def apply_bias_field(I, B, mask=None):
 class PerlinBiasField:
     def __init__(self, shape=[40, 96, 80], base_res=[20, 24, 20], res_scales=[1,2,2,3,3,3,4,4,4], device='cpu', min_range=(0.4, 1), max_range=(1, 1.6), return_field=False, mask_at_0=False, resample=True, resample_factor=2):
         """
-        stochastic perlin bias field generation function
-
-        shape: the shape of the bias field that is generated.
-        base_res: the distance in voxels between grid coordinates used in the perlin noise algorithm
-        res_scales: list of scales used to multiple the base_res. a single scale is randomly sampled from the list.
-        device: cpu or cuda, torch device used for the compute. gpu preferable for speed.
-        min_range: range of minimum values for the resulting bias field, sampled from uniformly
-        max_range: range of maximum values for the resulting bias field, sampled from uniformly.
-
-        note: mask_at_0 is used here only for visualization processes, during training mask multiplication is done later in the augmentation pipeline, see ArtefactsAugmentation class
-        """
-
-        """
         Stochastic Perlin noise-based bias field augmentation for MRI.
     
         This class generates smooth multiplicative bias fields using improved
